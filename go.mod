@@ -1,6 +1,6 @@
 module github.com/MatthewMcDade13/gogen
 
-go 1.22.1
+go 1.21.6
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
