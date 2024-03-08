@@ -15,6 +15,11 @@ import (
 	"github.com/MatthewMcDade13/gogen/src/util"
 )
 
+const (
+	ROOT_INIT = iota
+	ROOT_NEW
+)
+
 const GOMAIN_TEMPL string = (`package main
 
 import "fmt"
@@ -54,8 +59,22 @@ func gomod_templ_test(modname string) string {
 	return templ.String()
 }
 
+func makefile_templ() string {
+	templ := bytes.Buffer{}
+
+	templ.WriteString(".PHONY : run\n")
+	templ.WriteString("run:\n")
+	templ.WriteString("\tgo run ./src/\n\n")
+
+	templ.WriteString(".PHONY : build\n")
+	templ.WriteString("build:\n")
+	templ.WriteString("\tmkdir ./bin && go build -o ./bin/gogen ./src/*.go\n\n")
+
+	return templ.String()
+}
+
 // NO MUTATE PLS!
-var valid_genargs = []string{"new", "n", "mod", "m"}
+var valid_genargs = []string{"new", "n", "mod", "m", "init"}
 
 func IsValidTypeArg(ty string) bool {
 	return slices.Contains(valid_genargs, ty)
@@ -75,15 +94,17 @@ func ValidArgsString() string {
 
 func Write(ty string, name string) error {
 	if IsNewArg(ty) {
-		return gen_project(name)
+		return gen_project(name, ROOT_NEW)
 	} else if IsModArg(ty) {
 		return gen_module(name)
+	} else if ty == "init" {
+		gen_project(name, ROOT_INIT)
 	}
 
 	return fmt.Errorf("Invaid argument: %v", ty)
 }
 
-func gen_project(name string) error {
+func gen_project(name string, root_type int) error {
 	_, err := os.Stat(strings.ToLower(name))
 	if errors.Is(err, fs.ErrExist) {
 		return fmt.Errorf("folder %v already exists in current working directory: %v", name, cwd())
@@ -93,8 +114,18 @@ func gen_project(name string) error {
 		return fmt.Errorf("Folder: %v, already exists in current working directory: %v", name, cwd())
 	}
 
-	// Create project directory: {CWD}/{project_name}/src
-	proj_path := path.Join(cwd(), name, "src")
+	var root_path string
+	var proj_path string
+	switch root_type {
+	case ROOT_NEW:
+		root_path = path.Join(cwd(), name)
+		proj_path = path.Join(root_path, "src")
+		break
+	case ROOT_INIT:
+		root_path = cwd()
+		proj_path = path.Join(root_path, "src")
+	}
+
 	if err := os.MkdirAll(proj_path, util.DEFAULT_FS_PERM); err != nil {
 
 		return err
@@ -116,6 +147,13 @@ func gen_project(name string) error {
 	cmd := exec.Command("go", "mod", "init", gomod_name)
 	cmd.Dir = path.Join(cwd(), name)
 	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	makefile_path := path.Join(root_path, "Makefile")
+	makefile_bytes := []byte(makefile_templ())
+
+	if err := os.WriteFile(makefile_path, makefile_bytes, util.DEFAULT_FILE_PERM); err != nil {
 		return err
 	}
 
