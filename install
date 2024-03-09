@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+go build -o ./bin/gogen &&
+
+
+mkdir ~/.goapps &&
+
+cp ./bin/gogen ~/.goapps/gogen 
+
+sudo ln -s ~/.goapps/gogen /usr/local/bin/gogen 
