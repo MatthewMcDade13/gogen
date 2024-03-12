@@ -14,6 +14,8 @@ const (
 	CONFIG_FIELD_PREFIX = "GoModPrefix"
 )
 
+const PROJECT_VERSION = "v1.1.1"
+
 var default_config = fmt.Sprint("{\n", "    \"", CONFIG_FIELD_PREFIX, "\": ", `""`, "\n", "}")
 
 func init() {
@@ -23,13 +25,6 @@ func init() {
 	viper.SetConfigType("json")
 	viper.AddConfigPath(CONFIG_PATH)
 	viper.AddConfigPath(".")
-
-	// if _, err := os.Stat(CONFIG_PATH); err != nil {
-	// 	// config file does not exist
-	// 	if err := os.WriteFile(CONFIG_PATH, []byte(default_config), 0666); err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

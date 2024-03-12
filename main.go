@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/MatthewMcDade13/gogen/src/config"
 	"github.com/MatthewMcDade13/gogen/src/gen"
 	"github.com/charmbracelet/log"
 )
@@ -18,7 +19,16 @@ func init() {
 }
 
 func main() {
+
+	version := flag.Bool("v", false, "Prints version of gogen")
+
 	flag.Parse()
+
+	if *version {
+		msg := fmt.Sprintf("gogen %v\n", config.PROJECT_VERSION)
+		fmt.Println(msg)
+		os.Exit(0)
+	}
 
 	if s, err := parse_state(); err == nil {
 		gogen.Write(s.ty, s.name)
