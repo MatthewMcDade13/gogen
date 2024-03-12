@@ -64,11 +64,11 @@ func makefile_templ() string {
 
 	templ.WriteString(".PHONY : run\n")
 	templ.WriteString("run:\n")
-	templ.WriteString("\tgo run ./src/\n\n")
+	templ.WriteString("\tgo run main.go \n\n")
 
 	templ.WriteString(".PHONY : build\n")
 	templ.WriteString("build:\n")
-	templ.WriteString("\tmkdir ./bin && go build -o ./bin/gogen ./src/*.go\n\n")
+	templ.WriteString("\tgo build -o ./bin/gogen ./main.go \n\n")
 
 	return templ.String()
 }
@@ -97,8 +97,6 @@ func Write(ty string, name string) error {
 		return gen_project(name, ROOT_NEW)
 	} else if IsModArg(ty) {
 		return gen_module(name)
-	} else if ty == "init" {
-		gen_project(name, ROOT_INIT)
 	}
 
 	return fmt.Errorf("Invaid argument: %v", ty)
@@ -131,7 +129,7 @@ func gen_project(name string, root_type int) error {
 		return err
 	}
 
-	main_path := path.Join(proj_path, "main.go")
+	main_path := path.Join(root_path, "main.go")
 
 	f, err := os.Create(main_path)
 	if err != nil {

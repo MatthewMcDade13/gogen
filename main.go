@@ -6,12 +6,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/MatthewMcDade13/gogen/src/gogen"
+	"github.com/MatthewMcDade13/gogen/src/gen"
 	"github.com/charmbracelet/log"
 )
 
 var gomod_prefix string
 
+// TODO :: Implement this prefix flag. Right now this app just ignores it.
 func init() {
 	flag.StringVar(&gomod_prefix, "p", "", "gogen new -p github.com/githubuser project_name")
 }
